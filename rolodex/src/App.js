@@ -1,26 +1,65 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import { CardList } from './components/card-list/card-list.component';
+import { SearchBox } from './components/search-box/search-box.component.jsx';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      monsters: [],
+      searchfield: '',
+    };
+  }
+
+  componentDidMount() {
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((response) => {
+        return response.json();
+      })
+      .then((users) => {
+        console.log(users);
+        this.setState({
+          monsters: users,
+        });
+      });
+  }
+
+  manageChange = (e) => {
+    this.setState(
+      {
+        searchfield: e.target.value,
+      },
+      () => {
+        console.log(this.state);
+      }
+    );
+  };
+
+  render() {
+    //destructuring: pulling state value off the state object and setting them equal to variables called monsters and serchfield
+    const { monsters, searchfield } = this.state;
+
+    const filteredMonsters = monsters.filter((monster) =>
+      monster.name.toLowerCase().includes(searchfield.toLowerCase())
+    );
+    return (
+      <div className='App'>
+        <h1>Rolodex</h1>
+        <SearchBox
+          placeholder='Enter a monster'
+          handleChange={this.manageChange}
+        />
+        {/* <input
+          type='search'
+          placeholder='Enter a monster'
+          onChange={this.handleChange}
+        /> */}
+        {/*instead of passing in this.state.monsters, we pass in the list of monsters thats being filtered by the input search */}
+        <CardList monsters={filteredMonsters}></CardList>
+      </div>
+    );
+  }
 }
 
 export default App;
